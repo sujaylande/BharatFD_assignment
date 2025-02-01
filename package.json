@@ -4,7 +4,7 @@
   "description": "multilingual-faq-system assignment for BharatFD company",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sujay Lande",
@@ -14,6 +14,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "google-translate-api-x": "^10.7.2",
     "mongoose": "^8.9.6",
     "redis": "^4.7.0"
   },
