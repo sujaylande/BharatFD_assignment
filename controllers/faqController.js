@@ -1,6 +1,7 @@
 const FAQ = require("../models/FAQ");
-
 const { translateText } = require("../services/translationService.js");
+const { getCache, setCache } = require('../services/cacheService');
+
 
 exports.addFAQ = async (req, res) => {
   const { question, answer } = req.body;
@@ -29,30 +30,43 @@ exports.addFAQ = async (req, res) => {
   }
 };
 
+
 exports.getFAQs = async (req, res) => {
-  const lang = req.query.lang || "en";
+  const lang = req.query.lang || 'en';
 
   try {
+    const cacheKey = `faqs:${lang}`;
+    const cachedFaqs = await getCache(cacheKey);
+
+    if (cachedFaqs) {
+      // console.log('Returning cached FAQs');
+      return res.json(cachedFaqs);
+    }
+
     const faqs = await FAQ.find();
 
-    const translatedFaqs = faqs.map((faq) => {
-      if (lang !== "en" && faq.translations[lang]) {
+    const translatedFaqs = await Promise.all(
+      faqs.map(async (faq) => {
+        if (lang !== 'en' && faq.translations[lang]) {
+          return {
+            question: faq.translations[lang].question || faq.question,
+            answer: faq.translations[lang].answer || faq.answer,
+          };
+        }
         return {
-          question: faq.translations[lang].question || faq.question,
-          answer: faq.translations[lang].answer || faq.answer,
+          question: faq.question,
+          answer: faq.answer,
         };
-      }
-      return { question: faq.question, answer: faq.answer };
-    });
+      })
+    );
 
-    // res.json(translatedFaqs);
-    res
-      .status(200)
-      .json({
-        message: "FAQ retrieved successfully!",
-        translatedFaqs: translatedFaqs,
-      });
+    // Set the response in Redis Cache
+    await setCache(cacheKey, translatedFaqs);
+
+    res.json(translatedFaqs);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
