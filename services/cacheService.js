@@ -12,7 +12,7 @@ exports.getCache = async (key) => {
 
 exports.setCache = async (key, value, expiry = 3600) => {
   try {
-    await client.set(key, JSON.stringify(value), { EX: expiry });
+    await client.set(key, JSON.stringify(value), { EX: expiry }); //expiry in 60 minutes
   } catch (err) {
     console.error('Error setting cache:', err);
   }
