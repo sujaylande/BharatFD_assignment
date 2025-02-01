@@ -39,8 +39,7 @@ exports.getFAQs = async (req, res) => {
     const cachedFaqs = await getCache(cacheKey);
 
     if (cachedFaqs) {
-      // console.log('Returning cached FAQs');
-      return res.json(cachedFaqs);
+      return res.status(200).json({ error: "Returning cached FAQs", cachedFaqs: cachedFaqs});
     }
 
     const faqs = await FAQ.find();
@@ -63,7 +62,9 @@ exports.getFAQs = async (req, res) => {
     // Set the response in Redis Cache
     await setCache(cacheKey, translatedFaqs);
 
-    res.json(translatedFaqs);
+    // res.json(translatedFaqs);
+    res.status(200).json({ error: "Returning FAQs from db", translatedFaqs: translatedFaqs});
+
 
   } catch (err) {
     res.status(500).json({ error: err.message });
