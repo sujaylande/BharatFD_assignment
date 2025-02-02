@@ -2,27 +2,92 @@ const FAQ = require("../models/FAQ");
 const { translateText } = require("../services/translationService.js");
 const { getCache, setCache } = require('../services/cacheService');
 
+// exports.addFAQ = async (req, res) => {
+//   const { question, answer } = req.body;
+
+//   try {
+//     const translations = {
+//       hi: {
+//         question: await translateText(question, "hi"),
+//         answer: await translateText(answer, "hi"),
+//       },
+//       bn: {
+//         question: await translateText(question, "bn"),
+//         answer: await translateText(answer, "bn"),
+//       },
+//     };
+
+//     const newFAQ = new FAQ({ question, answer, translations });
+//     await newFAQ.save();
+
+//     const newFAQData = {
+//       en: { question, answer },
+//       hi: translations.hi,
+//       bn: translations.bn,
+//     };
+
+//     await Promise.all(
+//       ['en', 'hi', 'bn'].map(async (lang) => {
+//         const cacheKey = `faqs:${lang}`;
+//         let existingCache = await getCache(cacheKey);
+        
+//         if (!Array.isArray(existingCache)) existingCache = []; // Ensure it's an array
+
+//         existingCache.push(newFAQData[lang]);
+//         const updatedCacheValue = JSON.stringify(existingCache);
+
+//         await setCache(cacheKey, updatedCacheValue);
+//       })
+//     );
+
+//     res.status(201).json({
+//       message: "FAQ added successfully with translations and cached!",
+//       faq: newFAQ,
+//     });
+//   } catch (err) {
+//     console.error("Error adding FAQ:", err);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
 
 exports.addFAQ = async (req, res) => {
-  const { question, answer } = req.body;
+  const { question, answer, language } = req.body;
 
   try {
-    const translations = {
-      hi: {
+    const translations = {};
+
+    if (language !== 'hi') {
+      translations.hi = {
         question: await translateText(question, "hi"),
         answer: await translateText(answer, "hi"),
-      },
-      bn: {
+      };
+    } else {
+      translations.hi = { question, answer };
+    }
+
+    if (language !== 'bn') {
+      translations.bn = {
         question: await translateText(question, "bn"),
         answer: await translateText(answer, "bn"),
-      },
-    };
+      };
+    } else {
+      translations.bn = { question, answer };
+    }
 
-    const newFAQ = new FAQ({ question, answer, translations });
+    let translatedQuestion = question;
+    let translatedAnswer = answer;
+
+    if (language !== 'en') {
+      translatedQuestion = await translateText(question, "en");
+      translatedAnswer = await translateText(answer, "en");
+    }
+
+    const newFAQ = new FAQ({ question: translatedQuestion, answer: translatedAnswer, translations });
     await newFAQ.save();
 
     const newFAQData = {
-      en: { question, answer },
+      en: { question: translatedQuestion, answer: translatedAnswer },
       hi: translations.hi,
       bn: translations.bn,
     };
@@ -45,15 +110,11 @@ exports.addFAQ = async (req, res) => {
       message: "FAQ added successfully with translations and cached!",
       faq: newFAQ,
     });
-  } catch (err) {
-    console.error("Error adding FAQ:", err);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error adding FAQ:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
-
-
-
 
 exports.getFAQs = async (req, res) => {
   const lang = req.query.lang || 'en';
