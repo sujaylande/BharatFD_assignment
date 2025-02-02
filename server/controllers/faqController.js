@@ -2,57 +2,13 @@ const FAQ = require("../models/FAQ");
 const { translateText } = require("../services/translationService.js");
 const { getCache, setCache } = require('../services/cacheService');
 
-// exports.addFAQ = async (req, res) => {
-//   const { question, answer } = req.body;
-
-//   try {
-//     const translations = {
-//       hi: {
-//         question: await translateText(question, "hi"),
-//         answer: await translateText(answer, "hi"),
-//       },
-//       bn: {
-//         question: await translateText(question, "bn"),
-//         answer: await translateText(answer, "bn"),
-//       },
-//     };
-
-//     const newFAQ = new FAQ({ question, answer, translations });
-//     await newFAQ.save();
-
-//     const newFAQData = {
-//       en: { question, answer },
-//       hi: translations.hi,
-//       bn: translations.bn,
-//     };
-
-//     await Promise.all(
-//       ['en', 'hi', 'bn'].map(async (lang) => {
-//         const cacheKey = `faqs:${lang}`;
-//         let existingCache = await getCache(cacheKey);
-        
-//         if (!Array.isArray(existingCache)) existingCache = []; // Ensure it's an array
-
-//         existingCache.push(newFAQData[lang]);
-//         const updatedCacheValue = JSON.stringify(existingCache);
-
-//         await setCache(cacheKey, updatedCacheValue);
-//       })
-//     );
-
-//     res.status(201).json({
-//       message: "FAQ added successfully with translations and cached!",
-//       faq: newFAQ,
-//     });
-//   } catch (err) {
-//     console.error("Error adding FAQ:", err);
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
 
 exports.addFAQ = async (req, res) => {
   const { question, answer, language } = req.body;
+
+  if (!question || !answer) {
+    return res.status(400).json({ error: "Question and Answer cannot be empty" });
+  }
 
   try {
     const translations = {};
@@ -107,9 +63,11 @@ exports.addFAQ = async (req, res) => {
     );
 
     res.status(201).json({
+      success: true,
       message: "FAQ added successfully with translations and cached!",
       faq: newFAQ,
     });
+    
   } catch (error) {
     console.error('Error adding FAQ:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
