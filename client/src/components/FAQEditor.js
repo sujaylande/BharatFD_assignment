@@ -5,15 +5,21 @@ import "react-quill/dist/quill.snow.css";
 const FAQEditor = ({ onSubmit }) => {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
       await onSubmit(question, answer);
       setQuestion("");
       setAnswer("");
     } catch (error) {
       console.error("Error submitting FAQ:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -23,7 +29,7 @@ const FAQEditor = ({ onSubmit }) => {
         <label>Question:</label>
         <input
           type="text"
-          placeholder="Enter question in either English, Hindi or Bengali language!"
+          placeholder="Enter question in either English, Hindi, or Bengali language!"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           style={{ width: "100%", padding: "8px", marginTop: "5px" }}
@@ -40,16 +46,17 @@ const FAQEditor = ({ onSubmit }) => {
       <div style={{ textAlign: "right" }}>
         <button
           type="submit"
+          disabled={isSubmitting}
           style={{
             padding: "10px 20px",
-            backgroundColor: "#4CAF50",
+            backgroundColor: isSubmitting ? "#ccc" : "#4CAF50",
             color: "white",
             border: "none",
-            cursor: "pointer",
+            cursor: isSubmitting ? "not-allowed" : "pointer",
             marginTop: "40px",
           }}
         >
-          Add FAQ
+          {isSubmitting ? "Adding..." : "Add FAQ"}
         </button>
       </div>
     </form>

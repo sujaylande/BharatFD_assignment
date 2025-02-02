@@ -73,17 +73,11 @@ REDIS_PASSWORD=your_redis_password
       "message": "FAQ added successfully with translations!",
       "faq": {
         "_id": "faq_id",
-        "question": "Your question",
-        "answer": "Your answer",
+        "question": "What is your name?",
+        "answer": "My name is Sujay.",
         "translations": {
-          "hi": {
-            "question": "Translated question in Hindi",
-            "answer": "Translated answer in Hindi"
-          },
-          "bn": {
-            "question": "Translated question in Bengali",
-            "answer": "Translated answer in Bengali"
-          }
+          "hi": { "question": "आपका नाम क्या है?", "answer": "मेरा नाम सुजय है।" },
+          "bn": { "question": "তোমার নাম কি?", "answer": "আমার নাম সুজয়।" }
         },
         "createdAt": "timestamp"
       }
@@ -115,8 +109,8 @@ REDIS_PASSWORD=your_redis_password
       "error": "Returning cached FAQs",
       "cachedFaqs": [
         {
-          "question": "Cached question",
-          "answer": "Cached answer"
+          "question": "What is your name?",
+          "answer": "My name is Sujay.",
         },
       ]
     }
@@ -127,8 +121,8 @@ REDIS_PASSWORD=your_redis_password
       "error": "Returning FAQs from db",
       "translatedFaqs": [
         {
-          "question": "Translated question",
-          "answer": "Translated answer"
+          "question": "What is your name?",
+          "answer": "My name is Sujay.",
         },
       ]
     }
