@@ -63,7 +63,7 @@ exports.getFAQs = async (req, res) => {
     const cachedFaqs = await getCache(cacheKey);
 
     if (cachedFaqs) {
-      return res.status(200).json({ error: "Returning cached FAQs", cachedFaqs: cachedFaqs});
+      return res.status(200).json({ message: "Returning cached FAQs", cachedFaqs: cachedFaqs});
     }
 
     const faqs = await FAQ.find();
@@ -85,7 +85,7 @@ exports.getFAQs = async (req, res) => {
 
     await setCache(cacheKey, translatedFaqs);
 
-    res.status(200).json({ error: "Returning FAQs from db", translatedFaqs: translatedFaqs});
+    res.status(200).json({ message: "Returning FAQs from db", translatedFaqs: translatedFaqs});
 
 
   } catch (err) {
