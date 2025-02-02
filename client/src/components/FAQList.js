@@ -21,9 +21,9 @@ const FAQList = ({ faqs, setFaqs }) => {
   return (
     <div>
       <div style={{ marginBottom: "20px" }}>
-       <button onClick={() => setLanguage("hi")} style={{ marginRight: "10px" }}>Hindi</button>
-        <button onClick={() => setLanguage("en")} style={{ marginRight: "10px" }}>English</button>
-        <button onClick={() => setLanguage("bn")}>Bengali</button>
+       <button onClick={() => setLanguage("hi")} style={{ marginRight: "10px" }}>FAQs in Hindi</button>
+        <button onClick={() => setLanguage("en")} style={{ marginRight: "10px" }}>FAQs in English</button>
+        <button onClick={() => setLanguage("bn")}>FAQs in Bengali</button>
       </div>
 
       {faqs?.length > 0 ? (

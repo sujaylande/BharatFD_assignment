@@ -23,6 +23,7 @@ const FAQEditor = ({ onSubmit }) => {
         <label>Question:</label>
         <input
           type="text"
+          placeholder="Enter question in either English, Hindi or Bengali language!"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           style={{ width: "100%", padding: "8px", marginTop: "5px" }}
