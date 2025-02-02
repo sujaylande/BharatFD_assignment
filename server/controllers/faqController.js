@@ -7,28 +7,52 @@ exports.addFAQ = async (req, res) => {
   const { question, answer } = req.body;
 
   try {
-    const translations = {};
-    translations.hi = {
-      question: await translateText(question, "hi"),
-      answer: await translateText(answer, "hi"),
-    };
-    translations.bn = {
-      question: await translateText(question, "bn"),
-      answer: await translateText(answer, "bn"),
+    const translations = {
+      hi: {
+        question: await translateText(question, "hi"),
+        answer: await translateText(answer, "hi"),
+      },
+      bn: {
+        question: await translateText(question, "bn"),
+        answer: await translateText(answer, "bn"),
+      },
     };
 
     const newFAQ = new FAQ({ question, answer, translations });
     await newFAQ.save();
-    res
-      .status(201)
-      .json({
-        message: "FAQ added successfully with translations!",
-        faq: newFAQ,
-      });
+
+    const newFAQData = {
+      en: { question, answer },
+      hi: translations.hi,
+      bn: translations.bn,
+    };
+
+    await Promise.all(
+      ['en', 'hi', 'bn'].map(async (lang) => {
+        const cacheKey = `faqs:${lang}`;
+        let existingCache = await getCache(cacheKey);
+        
+        if (!Array.isArray(existingCache)) existingCache = []; // Ensure it's an array
+
+        existingCache.push(newFAQData[lang]);
+        const updatedCacheValue = JSON.stringify(existingCache);
+
+        await setCache(cacheKey, updatedCacheValue);
+      })
+    );
+
+    res.status(201).json({
+      message: "FAQ added successfully with translations and cached!",
+      faq: newFAQ,
+    });
   } catch (err) {
+    console.error("Error adding FAQ:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
+
+
 
 
 exports.getFAQs = async (req, res) => {
@@ -59,10 +83,8 @@ exports.getFAQs = async (req, res) => {
       })
     );
 
-    // Set the response in Redis Cache
     await setCache(cacheKey, translatedFaqs);
 
-    // res.json(translatedFaqs);
     res.status(200).json({ error: "Returning FAQs from db", translatedFaqs: translatedFaqs});
 
 
